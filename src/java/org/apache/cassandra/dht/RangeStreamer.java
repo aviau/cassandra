@@ -733,10 +733,13 @@ public class RangeStreamer
                         if (!RESET_BOOTSTRAP_PROGRESS.isPresent())
                         {
                             List<FetchReplica> skipped = fetchReplicas.stream().filter(isAvailable).collect(Collectors.toList());
-                            String msg = String.format("Discovered existing bootstrap data and %s " +
-                                                       "is not configured; aborting bootstrap. Please clean up local files manually " +
-                                                       "and try again or set cassandra.reset_bootstrap_progress=true to ignore. " +
-                                                       "Found: %s. Fully available: %s. Transiently available: %s",
+                            String msg = String.format("Discovered existing bootstrap data from a previous, partially successful " +
+                                                       "bootstrap and %1$s is unset; leaving it unset always aborts here rather than " +
+                                                       "choosing for you. Set -D%1$s=true to discard the recorded progress and re-stream " +
+                                                       "all ranges, which does not delete the already streamed files (so wipe the data " +
+                                                       "directories first), or -D%1$s=false to keep the recorded progress and stream only " +
+                                                       "the missing ranges. See CASSANDRA-17679. " +
+                                                       "Found: %2$s. Fully available: %3$s. Transiently available: %4$s",
                                                        RESET_BOOTSTRAP_PROGRESS.getKey(), skipped, available.full, available.trans);
                             logger.error(msg);
                             throw new IllegalStateException(msg);
